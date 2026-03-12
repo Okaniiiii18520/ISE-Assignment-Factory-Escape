@@ -14,7 +14,7 @@ class PlayerState(Enum):
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("asset\\Sprite\\Idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
+        self.image = pygame.image.load("assets\\Sprite\\Idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
         self.image = pygame.transform.scale_by(self.image, 0.1)
         bound = 15
         width, height = self.image.get_size()
@@ -25,9 +25,10 @@ class Player(pygame.sprite.Sprite):
         # animation frames
         self.animations = {}
         self.state = PlayerState.IDLE
-        base_folder = Path("asset")
+        base_folder = Path("assets")
         for image_pth in base_folder.rglob("*.png"):
             folder_name = image_pth.parent.name
+            folder_name = folder_name.lower()
             if folder_name not in self.animations:
                 self.animations[folder_name] = []
             img = self.image_tranformer(str(image_pth), 0.1, bound)
@@ -50,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.can_double_jump = True
 
         # dash
-        self.dash_sound = pygame.mixer.Sound("asset\\Sound\\dash.mp3")
+        self.dash_sound = pygame.mixer.Sound("assets\\Sound\\dash.mp3")
         self.dash_speed = 900.0
         self.dash_time = 0.12
         self.dash_cooldown = 0.7
@@ -59,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.dashing = False
 
         # hurt
-        self.hurt_sound = pygame.mixer.Sound("asset\\Sound\\hurt.mp3")
+        self.hurt_sound = pygame.mixer.Sound("assets\\Sound\\hurt.mp3")
         self.hurt_time = 0.5
         self.hurt_cooldown = 0.8
         self._hurt_timer = 0.0
