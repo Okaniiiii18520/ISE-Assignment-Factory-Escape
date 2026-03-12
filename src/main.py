@@ -54,7 +54,7 @@ def main():
             all_sprites.update(dt, level)
             screen.fill((200, 220, 255))
             level.draw(screen)
-            player.draw_effects(screen)
+            player.draw_trail(screen)
             all_sprites.draw(screen)
         
         pygame.display.flip()
