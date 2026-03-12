@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.effect = Effects(self)
 
-        # animations
+        # animation frames
         self.animations = {}
         self.state = PlayerState.IDLE
         base_folder = Path("asset")
@@ -34,6 +34,7 @@ class Player(pygame.sprite.Sprite):
             self.animations[folder_name].append(img)
         self.frame_count = 0
 
+        #positions
         self.pos = pygame.math.Vector2(x, y)
         self.vel = pygame.math.Vector2(0, 0)
         self.acc = pygame.math.Vector2(0, 0)
@@ -49,12 +50,21 @@ class Player(pygame.sprite.Sprite):
         self.can_double_jump = True
 
         # dash
+        self.dash_sound = pygame.mixer.Sound("asset\\Sound\\dash.mp3")
         self.dash_speed = 900.0
         self.dash_time = 0.12
         self.dash_cooldown = 0.7
         self._dash_timer = 0.0
         self._dash_cd_timer = 0.0
         self.dashing = False
+
+        # hurt
+        self.hurt_sound = pygame.mixer.Sound("asset\\Sound\\hurt.mp3")
+        self.hurt_time = 0.5
+        self.hurt_cooldown = 0.8
+        self._hurt_timer = 0.0
+        self._hurt_cd_timer = 0.0
+        self.hurting = False
 
     def handle_input(self, keys):
         self.acc.x = 0
@@ -81,7 +91,16 @@ class Player(pygame.sprite.Sprite):
             self.dashing = True
             self._dash_timer = self.dash_time
             self._dash_cd_timer = self.dash_cooldown
+            self.dash_sound.play()
             self.vel.x = dir_x * self.dash_speed
+
+    def hurt(self, dir_x):
+        if self._hurt_cd_timer <= 0 and not self.hurting:
+            self.hurting = True
+            self._hurt_timer = self.hurt_time
+            self._hurt_cd_timer = self.hurt_cooldown
+            self.hurt_sound.play()
+            self.facing = abs(dir_x) / dir_x
 
     def update(self, dt, level):
         keys = pygame.key.get_pressed()
@@ -101,6 +120,13 @@ class Player(pygame.sprite.Sprite):
             # clamp
             if abs(self.vel.x) > self.max_walk:
                 self.vel.x = self.max_walk * (1 if self.vel.x > 0 else -1)
+
+        if self.hurting:
+            self._hurt_timer -= dt
+            if self._hurt_timer <= 0:
+                self.hurting = False
+            else:
+                self.vel.x = self.facing * 2
 
         self.vel.y += self.acc.y * dt
 
@@ -135,6 +161,8 @@ class Player(pygame.sprite.Sprite):
     def update_animations(self):
         if self.dashing:
             animations = self.animations["dash"]
+        elif self.hurting:
+            animations = self.animations["hurt"]
         else:
             animations = self.animations[self.state.name.lower()]
         animation_length = len(animations)
