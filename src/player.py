@@ -14,7 +14,7 @@ class PlayerState(Enum):
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load(r"assets\\Sprite\\Idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
+        self.image = pygame.image.load("assets\\Sprite\\Idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
         self.image = pygame.transform.scale_by(self.image, 0.1)
         bound = 15
         width, height = self.image.get_size()
