@@ -47,6 +47,7 @@ def main():
                         player.try_dash(facing)
         
         if state == 'menu':
+            menu.update(pygame.mouse.get_pos())
             menu.draw(screen)
         elif state == 'game':
             all_sprites.update(dt, level)

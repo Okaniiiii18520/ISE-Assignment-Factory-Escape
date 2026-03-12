@@ -20,6 +20,14 @@ class MainMenu:
         self.title_rect = self.title.get_rect(center=(screen_width // 2, screen_height // 3))
         self.start_rect = self.start_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 50))
         self.quit_rect = self.quit_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 170))
+        
+        # Hover states
+        self.start_hovered = False
+        self.quit_hovered = False
+    
+    def update(self, mouse_pos):
+        self.start_hovered = self.start_rect.collidepoint(mouse_pos)
+        self.quit_hovered = self.quit_rect.collidepoint(mouse_pos)
     
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -32,5 +40,15 @@ class MainMenu:
     def draw(self, screen):
         screen.fill((50, 50, 80))
         screen.blit(self.title, self.title_rect)
-        screen.blit(self.start_btn, self.start_rect)
-        screen.blit(self.quit_btn, self.quit_rect)
+        
+        # Draw start button with hover effect
+        start_img = self.start_btn.copy()
+        if self.start_hovered:
+            start_img.fill((255, 255, 255, 128), special_flags=pygame.BLEND_RGBA_MULT)
+        screen.blit(start_img, self.start_rect)
+        
+        # Draw quit button with hover effect
+        quit_img = self.quit_btn.copy()
+        if self.quit_hovered:
+            quit_img.fill((255, 255, 255, 128), special_flags=pygame.BLEND_RGBA_MULT)
+        screen.blit(quit_img, self.quit_rect)
