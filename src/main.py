@@ -56,6 +56,7 @@ def main():
             level.draw(screen)
             player.draw_trail(screen)
             all_sprites.draw(screen)
+            player.draw_debug(dt, screen)
         
         pygame.display.flip()
 

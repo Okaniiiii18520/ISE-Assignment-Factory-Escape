@@ -22,8 +22,16 @@ class Player(pygame.sprite.Sprite):
 
         self.hitbox = pygame.Rect(0, 0, 30, 60)
         self.hitbox.midbottom = self.rect.midbottom
+        
+        # debugging overlay
         self.hitbox_overlay = pygame.Surface(self.hitbox.size, pygame.SRCALPHA)
         self.hitbox_overlay.fill((255, 125, 125, 150))
+        self.debug_font = pygame.font.Font(None, 20)
+        self.debug_text = self.debug_font.render("", True, (255, 125, 125))
+        self.debug_text_rect = self.debug_text.get_rect()
+        self.debug_text_rect.midbottom = self.hitbox.midright
+        self.debug_info_cooldown = 0.5
+        self._debug_info_cooldown_timer = 0.0
 
         #trailing
         self.trail_length = 8
@@ -231,8 +239,16 @@ class Player(pygame.sprite.Sprite):
             screen.blit(trail_img, trail_rect)
 
     # draw debug info
-    def draw_debug(self, screen):
+    def draw_debug(self, dt, screen):
+        if self._debug_info_cooldown_timer <= 0:
+            self._debug_info_cooldown_timer = self.debug_info_cooldown
+            self.debug_text = self.debug_font.render(f"x-Vel: {round(self.vel.x, 2)}  y-Vel: {round(self.vel.y, 2)}", True, (255, 125, 125))
+        else:
+            self._debug_info_cooldown_timer -= dt
+
+        self.debug_text_rect.midbottom = self.hitbox.midright
         screen.blit(self.hitbox_overlay, self.hitbox)
+        screen.blit(self.debug_text, self.debug_text_rect)
 
     def _collide_axis(self, platforms, axis):
         for p in platforms:
