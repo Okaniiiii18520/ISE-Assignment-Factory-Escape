@@ -11,10 +11,10 @@ def main():
     screen = pygame.display.set_mode((W, H))
     pygame.display.set_caption('speedinggrinch')
     clock = pygame.time.Clock()
-    
+
     menu = MainMenu(W, H)
     state = 'menu'
-    
+
     level = None
     player = None
     all_sprites = None
@@ -29,9 +29,9 @@ def main():
             
             if state == 'menu':
                 action = menu.handle_event(event)
-                if action == 'start':
+                if action == 'level_1':
                     state = 'game'
-                    level = Level() 
+                    level = Level(1)  # Initialize Level with level number 1
                     player = Player(120, H - 200)
                     clock.tick()
                     all_sprites = pygame.sprite.Group()
@@ -51,17 +51,19 @@ def main():
             menu.update(pygame.mouse.get_pos())
             menu.draw(screen)
         elif state == 'game':
-            all_sprites.update(dt, level)
+            level.update(player)
+            all_sprites.update(dt, level)  # Adjust as needed
             screen.fill((200, 220, 255))
             level.draw(screen)
-            player.draw_trail(screen)
-            all_sprites.draw(screen)
-            player.draw_debug(dt, screen)
-        
+            player.draw_trail(screen, level.scroll)
+            player_screen_rect = player.rect.copy()
+            player_screen_rect.x -= level.scroll
+            screen.blit(player.image, player_screen_rect)
+            # player.draw_debug(dt, screen)
+
         pygame.display.flip()
 
     pygame.quit()
-
 
 if __name__ == '__main__':
     main()
