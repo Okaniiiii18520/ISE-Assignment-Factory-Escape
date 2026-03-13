@@ -6,7 +6,6 @@ from menu import MainMenu
 
 
 def main():
-
     pygame.init()
     W, H = 1280, 720
     screen = pygame.display.set_mode((W, H))
@@ -15,28 +14,24 @@ def main():
 
     menu = MainMenu(W, H)
     state = 'menu'
+
     level = None
     player = None
     all_sprites = None
 
     running = True
-
     while running:
-
         dt = clock.tick(60) / 1000.0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-
                 running = False
-    
+
             if state == 'menu':
-
                 action = menu.handle_event(event)
-
                 if action == 'start':
                     state = 'game'
-                    level = Level()
+                    level = Level() 
                     player = Player(120, H - 200)
                     clock.tick()
                     all_sprites = pygame.sprite.Group()
@@ -44,9 +39,7 @@ def main():
                 elif action == 'quit':
                     running = False
 
-        
             elif state == 'game':
-
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         player.jump()
@@ -54,12 +47,9 @@ def main():
                         facing = getattr(player, 'facing', 1)
                         player.try_dash(facing)
 
-       
-
         if state == 'menu':
             menu.update(pygame.mouse.get_pos())
             menu.draw(screen)
-
         elif state == 'game':
             all_sprites.update(dt, level)
             screen.fill((200, 220, 255))
@@ -70,14 +60,8 @@ def main():
 
         pygame.display.flip()
 
-
-
     pygame.quit()
 
 
-
-
-
 if __name__ == '__main__':
-
     main()
