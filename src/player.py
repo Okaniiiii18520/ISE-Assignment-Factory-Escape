@@ -160,6 +160,17 @@ class Player(pygame.sprite.Sprite):
         self.hitbox.centerx = int(self.pos.x)
         self._collide_axis(level.platforms, 'x')
 
+        # clamp to world bounds
+        if self.hitbox.left < 0:
+            self.hitbox.left = 0
+            self.pos.x = self.hitbox.centerx
+            self.vel.x = 0
+            
+        if self.hitbox.right > level.world_width:
+            self.hitbox.right = level.world_width
+            self.pos.x = self.hitbox.centerx
+            self.vel.x = 0
+
         self.pos.y += self.vel.y * dt
         self.hitbox.bottom = int(self.pos.y)
         self._collide_axis(level.platforms, 'y')
@@ -219,7 +230,7 @@ class Player(pygame.sprite.Sprite):
         return image
 
     # drawing trailing effects
-    def draw_trail(self, screen, camera_scroll):
+    def draw_trail(self, screen, camera_scroll, camera_scroll_y=0):
         self.trail_pos.append(self.rect.center)
         self.trail_length = 12 if self.dashing else 8
         if len(self.trail_pos) != self.trail_length:
@@ -234,7 +245,7 @@ class Player(pygame.sprite.Sprite):
             trail_img.blit(color_mask, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
             trail_img.set_alpha(ratio/2)
 
-            trail_rect = trail_img.get_rect(center=(pos[0] - camera_scroll, pos[1]))
+            trail_rect = trail_img.get_rect(center=(pos[0] - camera_scroll, pos[1] - camera_scroll_y))
             screen.blit(trail_img, trail_rect)
 
     # draw debug info
