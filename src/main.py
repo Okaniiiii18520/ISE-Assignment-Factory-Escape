@@ -1,7 +1,8 @@
 import pygame
+import os
 from level import Level
 from player import Player
-from menu import MainMenu, StoryScroll, STORY_LINES_2
+from menu import MainMenu, StoryScroll
 from enemy import Enemy
 
 def main():
@@ -25,6 +26,9 @@ def main():
     overlay_font_big = pygame.font.Font(None, 100)
     overlay_font_small = pygame.font.Font(None, 44)
     running = True
+    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
     while running:
         dt = clock.tick(60) / 1000.0
         for event in pygame.event.get():
@@ -38,7 +42,7 @@ def main():
                     state = 'story'
                     prev_touching_machine = False
                 elif action == 'level_2':
-                    story = StoryScroll(W, H, lines=STORY_LINES_2)
+                    story = StoryScroll(W, H)
                     pending_level = 2
                     state = 'story'
                     prev_touching_machine = False
@@ -71,8 +75,11 @@ def main():
                 all_sprites = pygame.sprite.Group()
                 all_sprites.add(player)
                 enemies = [Enemy(x, plat) for x, plat in level.enemies]
-                state = 'game'
                 clock.tick()
+                pygame.mixer.music.load(os.path.join("assets", "Sound", "game_music.mp3"))
+                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.play(-1)
+                state = 'game'
         elif state == 'game':
             level.update(player, dt)
             all_sprites.update(dt, level)
@@ -83,7 +90,7 @@ def main():
                     overlay_timer = 0.0
                     break
             if level.check_spike_collision(player.hitbox):
-                player.hurt(player.facing)
+                player.try_hurt(player.facing)
 
             touching_machine = level.check_machine_collision(player.hitbox)
             if touching_machine and not prev_touching_machine and not player.dashing:
@@ -99,18 +106,11 @@ def main():
                 overlay_timer = 0.0
             screen.fill((200, 220, 255))
             level.draw(screen)
-
-            scroll_y = int(level.scroll_y) if current_level_number == 2 else 0
-            player.draw_trail(screen, level.scroll, scroll_y)
-            player.draw_stamina_bar(screen, level.scroll, scroll_y)
-            # player.draw_debug(dt, screen, level.scroll, scroll_y)
-
             for enemy in enemies:
                 enemy.draw(screen, level.scroll)
             player_screen_rect = player.rect.copy()
             player_screen_rect.x -= int(level.scroll)
             screen.blit(player.image, player_screen_rect)
-
         elif state == 'win':
             overlay_timer += dt
             overlay = pygame.Surface((W, H), pygame.SRCALPHA)
@@ -123,6 +123,9 @@ def main():
             if overlay_timer >= OVERLAY_HOLD:
                 state = 'menu'
                 overlay_timer = 0.0
+                pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
         elif state == 'dead':
             overlay_timer += dt
             overlay = pygame.Surface((W, H), pygame.SRCALPHA)

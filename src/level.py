@@ -14,7 +14,6 @@ class Level:
         self.goal_timer = 0.0
         self.level_number = level_number
         self.scroll = 0
-        self.scroll_y = 0
         self.screen_width = 1280
         self.screen_height = 720
         self.snowflakes = []
@@ -258,8 +257,7 @@ class Level:
         for flake in self.snowflakes:
             alpha = max(60, int(200 * (flake[3] / 3)))
             flake_surf = pygame.Surface((flake[3] * 2, flake[3] * 2), pygame.SRCALPHA)
-            pygame.draw.circle(flake_surf, (255, 255, 255, alpha),
-                               (flake[3], flake[3]), flake[3])
+            pygame.draw.circle(flake_surf, (255, 255, 255, alpha), (flake[3], flake[3]), flake[3])
             surf.blit(flake_surf, (int(flake[0]) - flake[3], int(flake[1]) - flake[3]))
         for p in self.platforms:
             self._draw_tiled_platform(surf, p)
@@ -267,19 +265,12 @@ class Level:
         for r in self.spike_rects:
             dx = r.x - int(self.scroll)
             dy = r.y
-            pygame.draw.polygon(surf, (220, 60, 60), [
-                (dx + S // 2, dy), (dx, dy + S), (dx + S, dy + S)
-            ])
+            pygame.draw.polygon(surf, (100, 180, 255), [(dx + S // 2, dy), (dx, dy + S), (dx + S, dy + S)])
         for m in self.machine_rects:
             surf.blit(self.gift_img, (m.x - int(self.scroll), m.y))
         if self.goal_rect:
             pulse = 0.5 + 0.5 * math.sin(self.goal_timer * 3)
-            dr = pygame.Rect(
-                self.goal_rect.x - int(self.scroll),
-                self.goal_rect.y,
-                self.goal_rect.width,
-                self.goal_rect.height
-            )
+            dr = pygame.Rect(self.goal_rect.x - int(self.scroll), self.goal_rect.y, self.goal_rect.width, self.goal_rect.height)
             for i in range(4, 0, -1):
                 glow = pygame.Surface((dr.width + i * 12, dr.height + i * 12), pygame.SRCALPHA)
                 glow.fill((100, 255, 200, int(40 * pulse * i)))
@@ -293,7 +284,6 @@ class Level:
             surf.blit(lbl, lbl.get_rect(centerx=dr.centerx, top=dr.top + 6))
 
     def _draw_snow_platform(self, surf, p):
-        """Draw a grass-body platform with a snow cap on top — used for Level 2."""
         sx = p.x - int(self.scroll)
         SNOW_H = 8
         GRASS_H = 6
@@ -304,7 +294,6 @@ class Level:
         pygame.draw.line(surf, (255, 255, 255), (sx, p.y), (sx + p.width, p.y), 2)
         pygame.draw.line(surf, (45, 85, 38), (sx, p.y + SNOW_H), (sx, p.y + p.height), 1)
         pygame.draw.line(surf, (45, 85, 38), (sx + p.width - 1, p.y + SNOW_H), (sx + p.width - 1, p.y + p.height), 1)
-
 
     def _draw_tiled_platform(self, surf, p):
         T = 32

@@ -72,8 +72,8 @@ class Player(pygame.sprite.Sprite):
         self.stamina_bar.fill((125, 255, 125, 255))
         self.stamina_rect = self.stamina_bar.get_rect()
         self.stamina_rect.bottomleft = self.hitbox.topleft
-
         # hurt
+        self.hp = 100
         self.hurt_sound = pygame.mixer.Sound("assets\\Sound\\hurt.mp3")
         self.hurt_time = 0.5
         self.hurt_cooldown = 0.8
@@ -146,7 +146,6 @@ class Player(pygame.sprite.Sprite):
                 self.hurting = False
             else:
                 self.vel.x = self.facing * 2
-
         self.vel.y += self.acc.y * dt
         # simple Euler position update
         self.pos.x += self.vel.x * dt
@@ -157,7 +156,6 @@ class Player(pygame.sprite.Sprite):
             self.hitbox.left = 0
             self.pos.x = self.hitbox.centerx
             self.vel.x = 0
-    
         if self.hitbox.right > level.world_width:
             self.hitbox.right = level.world_width
             self.pos.x = self.hitbox.centerx
@@ -167,7 +165,8 @@ class Player(pygame.sprite.Sprite):
         self._collide_axis(level.platforms, 'y')
         if self._dash_cd_timer > 0:
             self._dash_cd_timer -= dt
-
+        if self._hurt_cd_timer > 0:
+            self._hurt_cd_timer -= dt
         # constant deceleration
         self.vel.x += (0 - self.vel.x)/20
         # update state and animation
