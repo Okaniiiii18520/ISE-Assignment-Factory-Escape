@@ -2,7 +2,7 @@ import pygame
 import os
 from level import Level
 from player import Player
-from menu import MainMenu, StoryScroll, STORY_LINES_2, SettingsScreen, PauseMenu, DEFAULT_CONTROLS
+from menu import MainMenu, StoryScroll, STORY_LINES_2, SettingsScreen, PauseMenu, VictoryScreen, DEFAULT_CONTROLS
 from enemy import Enemy
 
 def main():
@@ -17,6 +17,7 @@ def main():
     pause_menu = None
     frozen_frame = None
     settings_screen = None
+    victory_screen = None
     pending_level = None
     level = None
     player = None
@@ -86,6 +87,15 @@ def main():
                     pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
                     pygame.mixer.music.set_volume(music_volume)
                     pygame.mixer.music.play(-1)
+            elif state == 'victory':
+                victory_screen.handle_event(event)
+                if victory_screen.done:
+                    state = 'menu'
+                    overlay_timer = 0.0
+                    menu = MainMenu(W, H, both_complete=(levels_complete == {1, 2}))
+                    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                    pygame.mixer.music.set_volume(music_volume)
+                    pygame.mixer.music.play(-1)
             elif state in ('win', 'dead', 'caught'):
                 if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
                     state = 'menu'
@@ -143,7 +153,8 @@ def main():
                     pending_level = 2
                     state = 'story'
                 else:
-                    state = 'win'
+                    victory_screen = VictoryScreen(W, H)
+                    state = 'victory'
                 overlay_timer = 0.0
 
             if player.hitbox.top > level.world_height + 200:
@@ -158,6 +169,9 @@ def main():
             player_screen_rect = player.rect.copy()
             player_screen_rect.x -= int(level.scroll)
             screen.blit(player.image, player_screen_rect)
+        elif state == 'victory':
+            victory_screen.update(dt)
+            victory_screen.draw(screen)
         elif state == 'win':
             overlay_timer += dt
             overlay = pygame.Surface((W, H), pygame.SRCALPHA)

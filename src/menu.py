@@ -477,3 +477,200 @@ class SettingsScreen:
         if self._rebinding:
             hint = self._font_hint.render("Press any key to rebind  •  ESC to cancel", True, (255, 220, 80))
             screen.blit(hint, hint.get_rect(centerx=self._panel.centerx, bottom=self._panel.bottom - 60))
+
+
+class VictoryScreen:
+    _PHASE_FADE    = 0   # black fade-in
+    _PHASE_CHAR    = 1   # character slides up, title drops down
+    _PHASE_SUB     = 2   # subtitle + prompt appear
+    _PHASE_IDLE    = 3   # fully shown, waiting for input
+
+    FADE_DUR   = 0.8
+    CHAR_DUR   = 0.9
+    SUB_DELAY  = 0.3     # after char phase ends
+    PROMPT_DELAY = 1.2
+
+    def __init__(self, screen_width, screen_height):
+        self.W = screen_width
+        self.H = screen_height
+        self._phase   = self._PHASE_FADE
+        self._timer   = 0.0
+        self._sub_t   = 0.0
+        self._prompt_t = 0.0
+        self.done     = False
+
+        # ---- fonts ----
+        self._font_title  = pygame.font.Font(None, 110)
+        self._font_sub    = pygame.font.Font(None, 46)
+        self._font_prompt = pygame.font.Font(None, 30)
+
+        # ---- pre-render text ----
+        self._title_surf  = self._font_title.render("YOU ESCAPED!", True, (120, 255, 190))
+        self._sub_lines   = [
+            self._font_sub.render("Santa's factory is behind you.", True, (220, 230, 255)),
+            self._font_sub.render("You are finally free.", True, (220, 230, 255)),
+        ]
+        self._prompt_surf = self._font_prompt.render("Press any key to continue", True, (160, 160, 180))
+
+        # ---- idle sprite frames (scaled up big) ----
+        self._frames = []
+        idle_dir = os.path.join("assets", "Sprite", "Idle")
+        for fname in sorted(os.listdir(idle_dir)):
+            if not fname.endswith(".png"):
+                continue
+            img = pygame.image.load(os.path.join(idle_dir, fname)).convert_alpha()
+            img = pygame.transform.scale_by(img, 0.55)
+            w, h = img.get_size()
+            wb, hb = 5, 15
+            img = img.subsurface(pygame.Rect(wb, hb, w - wb * 2, h - hb * 2))
+            self._frames.append(img)
+        self._frame_t  = 0.0
+        self._frame_i  = 0
+        self._char_w   = self._frames[0].get_width()
+        self._char_h   = self._frames[0].get_height()
+
+        # ---- particles ----
+        import random
+        rng = random.Random(42)
+        self._particles = [
+            {
+                'x': rng.randint(100, screen_width - 100),
+                'y': screen_height + rng.randint(0, 80),
+                'vx': rng.uniform(-60, 60),
+                'vy': rng.uniform(-420, -180),
+                'color': rng.choice([
+                    (120, 255, 190), (255, 220, 80), (100, 200, 255),
+                    (255, 120, 180), (200, 255, 120),
+                ]),
+                'size': rng.randint(4, 9),
+                'life': 1.0,
+                'decay': rng.uniform(0.4, 0.7),
+            }
+            for _ in range(80)
+        ]
+        self._particles_active = False
+
+        # ---- sfx / music ----
+        pygame.mixer.music.stop()
+        self._sfx = pygame.mixer.Sound(os.path.join("main_menu", "sfx", "win_sfx.mp3"))
+        self._sfx_played = False
+
+        # ---- background surface (solid dark) ----
+        self._bg = pygame.Surface((screen_width, screen_height))
+        self._bg.fill((8, 6, 18))
+
+        # ---- fade overlay ----
+        self._fade_surf = pygame.Surface((screen_width, screen_height))
+        self._fade_surf.fill((0, 0, 0))
+        self._fade_alpha = 255
+
+    # ------------------------------------------------------------------
+    def handle_event(self, event):
+        if self._phase == self._PHASE_IDLE:
+            if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
+                self.done = True
+
+    def update(self, dt):
+        self._timer += dt
+
+        if self._phase == self._PHASE_FADE:
+            self._fade_alpha = max(0, 255 - int(255 * (self._timer / self.FADE_DUR)))
+            if self._timer >= self.FADE_DUR:
+                self._phase = self._PHASE_CHAR
+                self._timer = 0.0
+                if not self._sfx_played:
+                    self._sfx.play()
+                    self._sfx_played = True
+
+        elif self._phase == self._PHASE_CHAR:
+            if self._timer >= self.CHAR_DUR:
+                self._phase = self._PHASE_SUB
+                self._timer = 0.0
+            self._fade_alpha = 0
+
+        elif self._phase == self._PHASE_SUB:
+            self._sub_t    = max(0.0, self._timer - self.SUB_DELAY)
+            self._prompt_t = max(0.0, self._timer - self.PROMPT_DELAY)
+            if self._timer >= self.PROMPT_DELAY + 0.5:
+                self._phase = self._PHASE_IDLE
+                self._particles_active = True
+
+        elif self._phase == self._PHASE_IDLE:
+            self._sub_t    = 999.0
+            self._prompt_t = 999.0
+
+        # animate character
+        self._frame_t += dt * 8
+        self._frame_i = int(self._frame_t) % len(self._frames)
+
+        # update particles
+        if self._particles_active:
+            for p in self._particles:
+                if p['life'] <= 0:
+                    continue
+                p['x']  += p['vx'] * dt
+                p['y']  += p['vy'] * dt
+                p['vy'] += 300 * dt   # gravity
+                p['life'] -= p['decay'] * dt
+
+    def draw(self, screen):
+        screen.blit(self._bg, (0, 0))
+
+        # --- particles ---
+        for p in self._particles:
+            if p['life'] <= 0:
+                continue
+            alpha = int(255 * min(1.0, p['life']))
+            s = pygame.Surface((p['size'] * 2, p['size'] * 2), pygame.SRCALPHA)
+            pygame.draw.circle(s, (*p['color'], alpha), (p['size'], p['size']), p['size'])
+            screen.blit(s, (int(p['x']) - p['size'], int(p['y']) - p['size']))
+
+        # --- character ---
+        char_x = self.W // 2 - self._char_w // 2
+        char_target_y = self.H - self._char_h - 60
+        if self._phase == self._PHASE_CHAR:
+            t = min(1.0, self._timer / self.CHAR_DUR)
+            ease = 1 - (1 - t) ** 3
+            char_y = int(self.H + self._char_h * (1 - ease) - self._char_h * ease)
+            char_y = int(self.H - (self.H - char_target_y) * ease)
+        else:
+            char_y = char_target_y
+        if self._phase != self._PHASE_FADE:
+            screen.blit(self._frames[self._frame_i], (char_x, char_y))
+
+        # --- title drop ---
+        if self._phase in (self._PHASE_CHAR, self._PHASE_SUB, self._PHASE_IDLE):
+            if self._phase == self._PHASE_CHAR:
+                t = min(1.0, self._timer / self.CHAR_DUR)
+                ease = 1 - (1 - t) ** 3
+                title_y = int(-80 + (self.H // 4 - 40 + 80) * ease)
+            else:
+                title_y = self.H // 4 - 40
+            # glow layers
+            for i in range(3, 0, -1):
+                glow = self._font_title.render("YOU ESCAPED!", True, (40, 120, 80))
+                glow.set_alpha(40 * i)
+                screen.blit(glow, glow.get_rect(centerx=self.W // 2 + i, centery=title_y + i))
+            screen.blit(self._title_surf, self._title_surf.get_rect(centerx=self.W // 2, centery=title_y))
+
+        # --- subtitle lines ---
+        sub_alpha = int(min(255, self._sub_t / 0.5 * 255))
+        if sub_alpha > 0:
+            sub_y = self.H // 2 + 20
+            for line in self._sub_lines:
+                line.set_alpha(sub_alpha)
+                screen.blit(line, line.get_rect(centerx=self.W // 2, centery=sub_y))
+                sub_y += 50
+
+        # --- prompt ---
+        prompt_alpha = int(min(255, self._prompt_t / 0.4 * 255))
+        if prompt_alpha > 0:
+            pulse = int(180 + 75 * abs(__import__('math').sin(pygame.time.get_ticks() / 500)))
+            p_surf = self._font_prompt.render("Press any key to continue", True, (pulse, pulse, pulse))
+            p_surf.set_alpha(prompt_alpha)
+            screen.blit(p_surf, p_surf.get_rect(centerx=self.W // 2, bottom=self.H - 30))
+
+        # --- fade overlay ---
+        if self._fade_alpha > 0:
+            self._fade_surf.set_alpha(self._fade_alpha)
+            screen.blit(self._fade_surf, (0, 0))
