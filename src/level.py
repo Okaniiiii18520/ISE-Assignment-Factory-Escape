@@ -33,6 +33,7 @@ class Level:
                 print(f"FAILED TO LOAD BG: {full_path}")
                 self.bg_image = pygame.Surface((1280, 720))
                 self.bg_image.fill((30, 30, 80))
+            self._load_tiles()
         else:
             self.world_width = self.screen_width
             self.world_height = 4000
@@ -40,6 +41,19 @@ class Level:
 
         self.bg_width = self.bg_image.get_width()
         self._create_layout()
+
+    def _load_tiles(self):
+        T = 32
+        ts = pygame.image.load(os.path.join("assets", "tiles", "Tileset.png")).convert_alpha()
+        def t(col, row): return ts.subsurface((col * T, row * T, T, T))
+        # Row 4: top surface  — left-cap, mid, right-cap
+        # Row 5: body         — left-cap, mid, right-cap
+        # Row 6: bottom       — left-cap, mid, right-cap
+        self._tiles = {
+            "top_l":  t(0, 4), "top_m":  t(1, 4), "top_r":  t(2, 4),
+            "body_l": t(0, 5), "body_m": t(1, 5), "body_r": t(2, 5),
+            "bot_l":  t(0, 6), "bot_m":  t(1, 6), "bot_r":  t(2, 6),
+        }
 
     def _make_level2_background(self):
         surf = pygame.Surface((self.screen_width, self.screen_height))
@@ -76,25 +90,33 @@ class Level:
             self._create_layout_2()
 
     def _create_layout_1(self):
+        T = 32
         H = self.screen_height
-        self.platforms = [pygame.Rect(0, H - 40, self.world_width, 40)]
-        self.platforms.extend([
-            pygame.Rect(300,  H - 160, 200, 24),
-            pygame.Rect(700,  H - 260, 220, 24),
-            pygame.Rect(1200, H - 200, 200, 24),
-            pygame.Rect(1700, H - 300, 200, 24),
-            pygame.Rect(2200, H - 220, 200, 24),
-            pygame.Rect(2700, H - 350, 200, 24),
-            pygame.Rect(3200, H - 180, 200, 24),
-            pygame.Rect(3700, H - 260, 200, 24),
-            pygame.Rect(4200, H - 320, 200, 24),
-            pygame.Rect(4700, H - 200, 200, 24),
-            pygame.Rect(5200, H - 260, 200, 24),
-        ])
-        for i in range(8):
-            x = 800 + i * 500
-            y = random.randint(250, 600)
-            self.platforms.append(pygame.Rect(x, y, 180, 24))
+        # Ground: snapped to bottom, 3 tiles tall
+        ground_y = H - T * 3
+        self.platforms = [pygame.Rect(0, ground_y, self.world_width, T * 3)]
+        # Floating platforms: (x, y, width_in_tiles) — all snapped to 32px grid
+        # Heights chosen so jumps feel natural; gaps are jumpable with a dash
+        plat_defs = [
+            # x,    y,              tiles_wide
+            (288,   H - T*8,        5),   # low step up
+            (640,   H - T*9,        6),   # medium rise
+            (1024,  H - T*9,        5),   # step down
+            (1376,  H - T*11,       5),   # higher ledge
+            (1760,  H - T*8,        6),   # mid platform
+            (2176,  H - T*13,       4),   # tall jump target
+            (2528,  H - T*9,        5),   # descend
+            (2912,  H - T*10,       6),   # low run section
+            (3296,  H - T*11,       5),   # back up
+            (3680,  H - T*8,        6),   # mid
+            (4064,  H - T*14,       4),   # high challenge
+            (4416,  H - T*10,       5),   # step down
+            (4800,  H - T*7,        6),   # low approach
+            (5184,  H - T*12,       5),   # final climb
+            (5568,  H - T*9,        5),   # near goal
+        ]
+        for x, y, tw in plat_defs:
+            self.platforms.append(pygame.Rect(x, y, tw * T, T * 2))
 
     def _create_layout_2(self):
         W = self.screen_width
@@ -153,7 +175,32 @@ class Level:
         surf.blit(self.bg_image, (-rel_x + self.bg_width, 0))
         surf.blit(self.bg_image, (-rel_x - self.bg_width, 0))
         for p in self.platforms:
-            pygame.draw.rect(surf, (40, 40, 50), pygame.Rect(p.x - self.scroll, p.y, p.width, p.height))
+            self._draw_tiled_platform(surf, p)
+
+    def _draw_tiled_platform(self, surf, p):
+        T = 32
+        tl = self._tiles
+        sx = p.x - int(self.scroll)
+        cols = max(1, p.width // T)
+        rows = max(1, p.height // T)
+        for r in range(rows):
+            for c in range(cols):
+                if r == 0:
+                    row_key = "top"
+                elif r == rows - 1:
+                    row_key = "bot"
+                else:
+                    row_key = "body"
+                if cols == 1:
+                    col_key = "m"
+                elif c == 0:
+                    col_key = "l"
+                elif c == cols - 1:
+                    col_key = "r"
+                else:
+                    col_key = "m"
+                tile = tl[f"{row_key}_{col_key}"]
+                surf.blit(tile, (sx + c * T, p.y + r * T))
 
     def _draw_level2(self, surf):
         bg_h = self.bg_image.get_height()

@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
         # animation frames
         self.animations = {}
         self.state = PlayerState.IDLE
-        base_folder = Path("assets")
+        base_folder = Path("assets") / "Sprite"
         for image_pth in base_folder.rglob("*.png"):
             folder_name = image_pth.parent.name
             folder_name = folder_name.lower()
