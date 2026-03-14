@@ -23,6 +23,7 @@ def main():
 
     overlay_timer = 0.0
     OVERLAY_HOLD = 2.5
+    prev_touching_machine = False
 
     overlay_font_big = pygame.font.Font(None, 100)
     overlay_font_small = pygame.font.Font(None, 44)
@@ -42,6 +43,7 @@ def main():
                     story = StoryScroll(W, H)
                     pending_level = 1
                     state = 'story'
+                    prev_touching_machine = False
                 elif action == 'level_2':
                     current_level_number = 2
                     level = Level(2)
@@ -49,6 +51,7 @@ def main():
                     all_sprites = pygame.sprite.Group()
                     all_sprites.add(player)
                     state = 'game'
+                    prev_touching_machine = False
                     clock.tick()
                 elif action == 'quit':
                     running = False
@@ -92,6 +95,12 @@ def main():
 
             if level.check_spike_collision(player.hitbox):
                 player.hurt(player.facing)
+
+            touching_machine = level.check_machine_collision(player.hitbox)
+            if touching_machine and not prev_touching_machine and not player.dashing:
+                player.vel.x = 0
+                player.hurt(player.facing)
+            prev_touching_machine = touching_machine
 
             if level.check_goal_collision(player.hitbox):
                 state = 'win'

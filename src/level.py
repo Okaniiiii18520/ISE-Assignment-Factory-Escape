@@ -9,6 +9,7 @@ class Level:
 
         self.platforms = []
         self.spike_rects = []
+        self.machine_rects = []
         self.goal_rect = None
         self.goal_timer = 0.0
         self.level_number = level_number
@@ -118,6 +119,16 @@ class Level:
         for x, y, tw in plat_defs:
             self.platforms.append(pygame.Rect(x, y, tw * T, T * 2))
 
+        # Randomly place machines on platforms (skip ground and first platform)
+        rng = random.Random(99)
+        MW, MH = 36, 48  # machine size
+        for plat in self.platforms[2:]:  # skip ground + first platform (spawn area)
+            if plat.width < MW * 2:
+                continue
+            if rng.random() < 0.55:  # ~55% chance per platform
+                mx = rng.randint(plat.x + 8, plat.x + plat.width - MW - 8)
+                self.machine_rects.append(pygame.Rect(mx, plat.y - MH, MW, MH))
+
     def _create_layout_2(self):
         W = self.screen_width
         H = self.world_height
@@ -183,6 +194,15 @@ class Level:
         surf.blit(self.bg_image, (-rel_x - self.bg_width, 0))
         for p in self.platforms:
             self._draw_tiled_platform(surf, p)
+        for m in self.machine_rects:
+            sx = m.x - int(self.scroll)
+            # body
+            pygame.draw.rect(surf, (80, 60, 60), (sx, m.y, m.width, m.height), border_radius=4)
+            pygame.draw.rect(surf, (200, 80, 40), (sx, m.y, m.width, m.height), 2, border_radius=4)
+            # spinning blade indicator (two crossed lines)
+            cx, cy = sx + m.width // 2, m.y + m.height // 2
+            pygame.draw.line(surf, (255, 120, 40), (cx - 10, cy - 10), (cx + 10, cy + 10), 3)
+            pygame.draw.line(surf, (255, 120, 40), (cx + 10, cy - 10), (cx - 10, cy + 10), 3)
 
     def _draw_tiled_platform(self, surf, p):
         T = 32
@@ -242,6 +262,9 @@ class Level:
             font = pygame.font.Font(None, 28)
             lbl = font.render("GOAL", True, (255, 255, 255))
             surf.blit(lbl, lbl.get_rect(centerx=dr.centerx, top=dr.top + 6))
+
+    def check_machine_collision(self, hitbox):
+        return any(hitbox.colliderect(m) for m in self.machine_rects)
 
     def check_spike_collision(self, hitbox):
         return any(hitbox.colliderect(r) for r in self.spike_rects)
