@@ -233,7 +233,6 @@ class Player(pygame.sprite.Sprite):
             
     def draw_stamina_bar(self, screen, camera_scroll, camera_scroll_y=0):
         self.stamina_rect.bottomleft = (self.hitbox.x - camera_scroll, self.hitbox.y - camera_scroll_y)
-
         if (self._dash_cd_timer > 0):
             ratio = (self.dash_cooldown - self._dash_cd_timer) / self.dash_cooldown
             cd_progress = int(ratio * 255)
@@ -251,7 +250,6 @@ class Player(pygame.sprite.Sprite):
             self.debug_text = self.debug_font.render(f"hurt_cd: {round(self._hurt_cd_timer, 2)}  dash_cd: {round(self._dash_cd_timer, 2)}", True, (255, 125, 125))
         else:
             self._debug_info_cooldown_timer -= dt
-
         self.debug_text_rect.midbottom = self.hitbox.midright
         screen.blit(self.hitbox_overlay, (self.hitbox.x - camera_scroll, self.hitbox.y - camera_scroll_y))
         screen.blit(self.debug_text, (self.debug_text_rect.x - camera_scroll, self.debug_text_rect.y - camera_scroll_y))

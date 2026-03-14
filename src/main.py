@@ -61,6 +61,8 @@ def main():
                 if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
                     state = 'menu'
                     overlay_timer = 0.0
+                    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                    pygame.mixer.music.play(-1)
         if state == 'menu':
             menu.update(pygame.mouse.get_pos(), dt)
             menu.draw(screen)
@@ -106,6 +108,8 @@ def main():
                 overlay_timer = 0.0
             screen.fill((200, 220, 255))
             level.draw(screen)
+            player.draw_trail(screen, level.scroll)
+            player.draw_stamina_bar(screen, level.scroll)
             for enemy in enemies:
                 enemy.draw(screen, level.scroll)
             player_screen_rect = player.rect.copy()
