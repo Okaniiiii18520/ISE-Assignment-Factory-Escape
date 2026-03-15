@@ -157,13 +157,13 @@ def main():
                     state = 'victory'
                 overlay_timer = 0.0
 
-            if player.hitbox.top > level.world_height + 200:
+            if player.hitbox.top > level.world_height + 200 or player.hp <= 0:
                 state = 'dead'
                 overlay_timer = 0.0
             screen.fill((200, 220, 255))
             level.draw(screen)
             player.draw_trail(screen, level.scroll)
-            player.draw_stamina_bar(screen, level.scroll)
+            player.draw_status_bar(screen)
             for enemy in enemies:
                 enemy.draw(screen, level.scroll)
             player_screen_rect = player.rect.copy()
