@@ -2,7 +2,7 @@ import pygame
 import os
 from level import Level
 from player import Player
-from menu import MainMenu, StoryScroll, STORY_LINES_2, SettingsScreen, PauseMenu, VictoryScreen, DEFAULT_CONTROLS
+from menu import MainMenu, StoryScroll, SettingsScreen, PauseMenu, VictoryScreen, DEFAULT_CONTROLS
 from enemy import Enemy
 
 def main():
@@ -33,7 +33,7 @@ def main():
     overlay_font_big = pygame.font.Font(None, 100)
     overlay_font_small = pygame.font.Font(None, 44)
     running = True
-    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+    pygame.mixer.music.load(os.path.join("assets", "audio", "menu_music.mp3"))
     pygame.mixer.music.set_volume(music_volume)
     pygame.mixer.music.play(-1)
     while running:
@@ -49,7 +49,7 @@ def main():
                     state = 'story'
                     prev_touching_machine = False
                 elif action == 'level_2':
-                    story = StoryScroll(W, H, lines=STORY_LINES_2, bg_level=2)
+                    story = StoryScroll(W, H, bg_level=2)
                     pending_level = 2
                     state = 'story'
                     prev_touching_machine = False
@@ -84,7 +84,7 @@ def main():
                     state = 'menu'
                     overlay_timer = 0.0
                     menu = MainMenu(W, H, both_complete=(levels_complete == {1, 2}))
-                    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                    pygame.mixer.music.load(os.path.join("assets", "audio", "menu_music.mp3"))
                     pygame.mixer.music.set_volume(music_volume)
                     pygame.mixer.music.play(-1)
             elif state == 'victory':
@@ -93,7 +93,7 @@ def main():
                     state = 'menu'
                     overlay_timer = 0.0
                     menu = MainMenu(W, H, both_complete=(levels_complete == {1, 2}))
-                    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                    pygame.mixer.music.load(os.path.join("assets", "audio", "menu_music.mp3"))
                     pygame.mixer.music.set_volume(music_volume)
                     pygame.mixer.music.play(-1)
             elif state in ('win', 'dead', 'caught'):
@@ -101,7 +101,7 @@ def main():
                     state = 'menu'
                     overlay_timer = 0.0
                     menu = MainMenu(W, H, both_complete=(levels_complete == {1, 2}))
-                    pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                    pygame.mixer.music.load(os.path.join("assets", "audio", "menu_music.mp3"))
                     pygame.mixer.music.play(-1)
             elif state == 'settings':
                 result = settings_screen.handle_event(event)
@@ -125,8 +125,8 @@ def main():
                 all_sprites.add(player)
                 enemies = [Enemy(x, plat) for x, plat in level.enemies]
                 clock.tick()
-                pygame.mixer.music.load(os.path.join("assets", "Sound", "game_music.mp3"))
-                pygame.mixer.music.set_volume(0.05)
+                pygame.mixer.music.load(os.path.join("assets", "audio", "game_music.mp3"))
+                pygame.mixer.music.set_volume(0.5)
                 pygame.mixer.music.play(-1)
                 state = 'game'
         elif state == 'game':
@@ -140,7 +140,6 @@ def main():
                     break
             if level.check_spike_collision(player.hitbox):
                 player.try_hurt(player.facing)
-
             touching_machine = level.check_machine_collision(player.hitbox)
             if touching_machine and not prev_touching_machine and not player.dashing:
                 player.vel.x *= 0.5
@@ -149,14 +148,13 @@ def main():
             if level.check_goal_collision(player.hitbox):
                 levels_complete.add(current_level_number)
                 if current_level_number == 1:
-                    story = StoryScroll(W, H, lines=STORY_LINES_2, bg_level=2)
+                    story = StoryScroll(W, H, bg_level=2)
                     pending_level = 2
                     state = 'story'
                 else:
                     victory_screen = VictoryScreen(W, H)
                     state = 'victory'
                 overlay_timer = 0.0
-
             if player.hitbox.top > level.world_height + 200:
                 state = 'dead'
                 overlay_timer = 0.0
@@ -185,7 +183,7 @@ def main():
                 state = 'menu'
                 overlay_timer = 0.0
                 menu = MainMenu(W, H, both_complete=(levels_complete == {1, 2}))
-                pygame.mixer.music.load(os.path.join("assets", "Sound", "menu_music.mp3"))
+                pygame.mixer.music.load(os.path.join("assets", "audio", "menu_music.mp3"))
                 pygame.mixer.music.set_volume(0.5)
                 pygame.mixer.music.play(-1)
         elif state == 'dead':

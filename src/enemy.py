@@ -2,9 +2,9 @@ import pygame
 import math
 from pathlib import Path
 
-def _load_animations(scale=0.1, w_bound=5, h_bound=15):
+def load_animation(scale=0.1, w_bound=5, h_bound=15):
     animations = {}
-    base_folder = Path("assets") / "Sprite"
+    base_folder = Path("assets") / "sprites"
     for image_pth in sorted(base_folder.rglob("*.png")):
         folder_name = image_pth.parent.name.lower()
         if folder_name not in animations:
@@ -25,7 +25,7 @@ _SHARED_ANIMATIONS = None
 def get_animations():
     global _SHARED_ANIMATIONS
     if _SHARED_ANIMATIONS is None:
-        _SHARED_ANIMATIONS = _load_animations()
+        _SHARED_ANIMATIONS = load_animation()
     return _SHARED_ANIMATIONS
 
 class Enemy:
@@ -81,6 +81,5 @@ class Enemy:
         pts = [(ex, ey)]
         for i in range(9):
             a = base_angle - half_rad + (2 * half_rad * i / 8)
-            pts.append((ex + math.cos(a) * self.DETECT_RANGE,
-                        ey + math.sin(a) * self.DETECT_RANGE))
+            pts.append((ex + math.cos(a) * self.DETECT_RANGE, ey + math.sin(a) * self.DETECT_RANGE))
         pygame.draw.polygon(surf, (255, 80, 80, 255), pts)

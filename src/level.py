@@ -49,12 +49,12 @@ class Level:
                  rng.choice([1, 1, 2, 2, 3])]
                 for _ in range(160)
             ]
-        self._load_tiles()
+        self.load_tiles()
         self.gift_img = pygame.image.load(os.path.join("assets", "background", "giftobstacle.png")).convert_alpha()
         self.gift_img = pygame.transform.scale(self.gift_img, (36, 48))
         self.bg_width = self.bg_image.get_width()
-        self._create_layout()
-    def _load_tiles(self):
+        self.create_layout()
+    def load_tiles(self):
         T = 32
         ts = pygame.image.load(os.path.join("assets", "tiles", "Tileset.png")).convert_alpha()
         def t(col, row):
@@ -73,13 +73,13 @@ class Level:
             "bot_l":  t2(0, 2), "bot_m":  t2(1, 2), "bot_r":  t2(2, 2),
         }
 
-    def _create_layout(self):
+    def create_layout(self):
         if self.level_number == 1:
-            self._create_layout_1()
+            self.create_layout_1()
         else:
-            self._create_layout_2()
+            self.create_layout_2()
 
-    def _create_layout_1(self):
+    def create_layout_1(self):
         T = 32
         H = self.screen_height
         ground_y = H - T * 3
@@ -143,7 +143,7 @@ class Level:
                 self.enemies.append((ex, plat))
         self.goal_rect = pygame.Rect(self.world_width - 160, ground_y - T * 5, 80, T * 5)
     
-    def _create_layout_2(self):
+    def create_layout_2(self):
         T = 32
         H = self.screen_height
         S = self.SPIKE_SIZE

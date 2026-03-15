@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 from level import Level
 
 DEFAULT_CONTROLS = {
@@ -50,11 +51,9 @@ STORY_LINES_2 = [
     "Do not stop. Do not get caught.",
 ]
 
-
 class MenuBackground:
     SCROLL_SPEED = 180
     FADE_DURATION = 1.2
-
     def __init__(self, screen_width, screen_height, level_number=1):
         self.W = screen_width
         self.H = screen_height
@@ -92,25 +91,23 @@ class MenuBackground:
             self._fade_surf.set_alpha(self._fade_alpha)
             surf.blit(self._fade_surf, (0, 0))
 
-
 class StoryScroll:
     FADE_SPEED = 280
-
     def __init__(self, screen_width, screen_height, lines=None, bg_level=1):
         self.W = screen_width
         self.H = screen_height
         self.alpha = 0
-        self.fading_in  = True
+        self.fading_in = True
         self.fading_out = False
         self.done = False
         self._dismissed = False
         self.title_font = pygame.font.Font(None, 42)
-        self.body_font  = pygame.font.Font(None, 30)
-        self.hint_font  = pygame.font.Font(None, 24)
+        self.body_font = pygame.font.Font(None, 30)
+        self.hint_font = pygame.font.Font(None, 24)
         _lines = lines if lines is not None else STORY_LINES
         self._title_surf = self.title_font.render("— BACKSTORY —", True, (255, 220, 120))
         self._line_surfs = [self.body_font.render(l, True, (220, 210, 190)) for l in _lines]
-        self._hint_surf  = self.hint_font.render("Press any key or click to continue", True, (160, 150, 130))
+        self._hint_surf = self.hint_font.render("Press any key or click to continue", True, (160, 150, 130))
         self._sfx = pygame.mixer.Sound(os.path.join("main_menu", "sfx", "pageflipsfx.mp3"))
         self._sfx.play()
         self.bg = MenuBackground(screen_width, screen_height, level_number=bg_level)
@@ -126,7 +123,7 @@ class StoryScroll:
     def dismiss(self):
         if not self._dismissed and not self.fading_out:
             self._dismissed = True
-            self.fading_in  = False
+            self.fading_in = False
             self.fading_out = True
             self._sfx.play()
 
@@ -159,7 +156,6 @@ class StoryScroll:
         self._surf.blit(self._hint_surf, (hx, ph - self._pad))
         self._surf.set_alpha(a)
         screen.blit(self._surf, self._panel_rect)
-
 
 class MainMenu:
     def __init__(self, screen_width, screen_height, both_complete=False):
@@ -271,10 +267,8 @@ class MainMenu:
         txt_surf = self.font.render(text, True, (255, 255, 255))
         screen.blit(txt_surf, txt_surf.get_rect(center=rect.center))
 
-
 class PauseMenu:
     _ITEMS = ['Resume', 'Settings', 'Quit to Menu']
-
     def __init__(self, screen_width, screen_height):
         self.W = screen_width
         self.H = screen_height
@@ -301,9 +295,7 @@ class PauseMenu:
         return None
 
     def update(self, mouse_pos):
-        self._hovered = next(
-            (i for i, r in enumerate(self._rects) if r.collidepoint(mouse_pos)), None
-        )
+        self._hovered = next((i for i, r in enumerate(self._rects) if r.collidepoint(mouse_pos)), None)
 
     def draw(self, screen, frozen_frame):
         screen.blit(frozen_frame, (0, 0))
@@ -323,7 +315,6 @@ class PauseMenu:
             lbl = self._font_item.render(label, True, (255, 255, 255))
             screen.blit(lbl, lbl.get_rect(center=rect.center))
 
-
 class SettingsScreen:
     PANEL_W  = 700
     PANEL_H  = 520
@@ -331,7 +322,6 @@ class SettingsScreen:
     SLIDER_H = 8
     THUMB_R  = 10
     ROW_H    = 54
-
     _ACTION_LABELS = [
         ('left',  'Move Left'),
         ('right', 'Move Right'),
@@ -342,33 +332,24 @@ class SettingsScreen:
     def __init__(self, screen_width, screen_height, controls, music_volume, return_to='menu'):
         self.W = screen_width
         self.H = screen_height
-        self.controls    = dict(controls)
+        self.controls = dict(controls)
         self.music_volume = music_volume
-        self.return_to   = return_to   # 'menu' or 'paused'
-
+        self.return_to = return_to   # 'menu' or 'paused'
         self._font_title = pygame.font.Font(None, 52)
         self._font_label = pygame.font.Font(None, 34)
-        self._font_hint  = pygame.font.Font(None, 26)
-
+        self._font_hint = pygame.font.Font(None, 26)
         self._panel = pygame.Rect(0, 0, self.PANEL_W, self.PANEL_H)
         self._panel.center = (screen_width // 2, screen_height // 2)
-
         slider_x = self._panel.x + 280
-        vol_y    = self._panel.y + 90
-        self._slider_track    = pygame.Rect(slider_x, vol_y, self.SLIDER_W, self.SLIDER_H)
+        vol_y = self._panel.y + 90
+        self._slider_track = pygame.Rect(slider_x, vol_y, self.SLIDER_W, self.SLIDER_H)
         self._dragging_slider = False
-
-        self._rebinding  = None
+        self._rebinding = None
         bind_start_y = self._panel.y + 170
-        self._bind_rects = {
-            action: pygame.Rect(slider_x, bind_start_y + i * self.ROW_H, 180, 38)
-            for i, (action, _) in enumerate(self._ACTION_LABELS)
-        }
-
+        self._bind_rects = {action: pygame.Rect(slider_x, bind_start_y + i * self.ROW_H, 180, 38) for i, (action, _) in enumerate(self._ACTION_LABELS)}
         self._back_rect = pygame.Rect(0, 0, 160, 44)
         self._back_rect.bottomright = (self._panel.right - 20, self._panel.bottom - 16)
         self._back_hovered = False
-
         self._surf = pygame.Surface((self.PANEL_W, self.PANEL_H), pygame.SRCALPHA)
 
     def _thumb_x(self):
@@ -376,24 +357,21 @@ class SettingsScreen:
 
     def _key_name(self, key):
         name = pygame.key.name(key)
-        return name.upper() if len(name) == 1 else name.title()
+        if len(name) == 1:
+            return name.upper()
+        else:
+            return name.title()
 
     def handle_event(self, event):
-        """Returns 'back' when done, else None."""
         if self._rebinding:
             if event.type == pygame.KEYDOWN:
                 if event.key != pygame.K_ESCAPE:
                     self.controls[self._rebinding] = event.key
                 self._rebinding = None
             return None
-
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mx, my = event.pos
-            thumb_rect = pygame.Rect(
-                self._thumb_x() - self.THUMB_R,
-                self._slider_track.centery - self.THUMB_R,
-                self.THUMB_R * 2, self.THUMB_R * 2
-            )
+            thumb_rect = pygame.Rect(self._thumb_x() - self.THUMB_R, self._slider_track.centery - self.THUMB_R, self.THUMB_R * 2, self.THUMB_R * 2)
             if thumb_rect.collidepoint(mx, my) or self._slider_track.collidepoint(mx, my):
                 self._dragging_slider = True
                 self._update_volume(mx)
@@ -403,16 +381,12 @@ class SettingsScreen:
                     return None
             if self._back_rect.collidepoint(mx, my):
                 return 'back'
-
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self._dragging_slider = False
-
         if event.type == pygame.MOUSEMOTION and self._dragging_slider:
             self._update_volume(event.pos[0])
-
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             return 'back'
-
         return None
 
     def _update_volume(self, mouse_x):
@@ -424,7 +398,6 @@ class SettingsScreen:
         self._back_hovered = self._back_rect.collidepoint(mouse_pos)
 
     def draw(self, screen, bg_or_frozen):
-        # bg_or_frozen: a MenuBackground (menu settings) or a Surface (pause settings)
         if isinstance(bg_or_frozen, pygame.Surface):
             screen.blit(bg_or_frozen, (0, 0))
         else:
@@ -432,31 +405,25 @@ class SettingsScreen:
         tint = pygame.Surface((self.W, self.H), pygame.SRCALPHA)
         tint.fill((0, 0, 0, 150))
         screen.blit(tint, (0, 0))
-
         self._surf.fill((0, 0, 0, 0))
         pygame.draw.rect(self._surf, (20, 18, 30, 220), (0, 0, self.PANEL_W, self.PANEL_H), border_radius=14)
         pygame.draw.rect(self._surf, (140, 120, 200, 180), (0, 0, self.PANEL_W, self.PANEL_H), 2, border_radius=14)
         screen.blit(self._surf, self._panel)
-
         px, py = self._panel.x, self._panel.y
         title = self._font_title.render("SETTINGS", True, (220, 210, 255))
         screen.blit(title, title.get_rect(centerx=self._panel.centerx, top=py + 22))
-
         vol_label = self._font_label.render("Music Volume", True, (200, 195, 220))
         screen.blit(vol_label, (px + 40, self._slider_track.y - 4))
         pygame.draw.rect(screen, (60, 55, 80), self._slider_track, border_radius=4)
-        filled = pygame.Rect(self._slider_track.x, self._slider_track.y,
-                             int(self.music_volume * self.SLIDER_W), self.SLIDER_H)
+        filled = pygame.Rect(self._slider_track.x, self._slider_track.y, int(self.music_volume * self.SLIDER_W), self.SLIDER_H)
         pygame.draw.rect(screen, (160, 130, 255), filled, border_radius=4)
         thumb_x = self._thumb_x()
         pygame.draw.circle(screen, (220, 200, 255), (thumb_x, self._slider_track.centery), self.THUMB_R)
         pygame.draw.circle(screen, (255, 255, 255), (thumb_x, self._slider_track.centery), self.THUMB_R, 2)
         pct = self._font_hint.render(f"{int(self.music_volume * 100)}%", True, (180, 175, 200))
         screen.blit(pct, (self._slider_track.right + 12, self._slider_track.y - 4))
-
         bind_title = self._font_label.render("Keybinds", True, (200, 195, 220))
         screen.blit(bind_title, (px + 40, py + 140))
-
         for action, label in self._ACTION_LABELS:
             rect = self._bind_rects[action]
             lbl = self._font_label.render(label, True, (210, 205, 230))
@@ -464,57 +431,45 @@ class SettingsScreen:
             waiting = self._rebinding == action
             pygame.draw.rect(screen, (100, 60, 160) if waiting else (55, 50, 80), rect, border_radius=8)
             pygame.draw.rect(screen, (255, 220, 80) if waiting else (140, 120, 200), rect, 2, border_radius=8)
-            kt = self._font_hint.render("Press key..." if waiting else self._key_name(self.controls[action]),
-                                        True, (255, 255, 255))
+            kt = self._font_hint.render("Press key..." if waiting else self._key_name(self.controls[action]), True, (255, 255, 255))
             screen.blit(kt, kt.get_rect(center=rect.center))
-
         bc = (90, 80, 130) if self._back_hovered else (55, 50, 80)
         pygame.draw.rect(screen, bc, self._back_rect, border_radius=8)
         pygame.draw.rect(screen, (140, 120, 200), self._back_rect, 2, border_radius=8)
         back_lbl = self._font_label.render("Back", True, (255, 255, 255))
         screen.blit(back_lbl, back_lbl.get_rect(center=self._back_rect.center))
-
         if self._rebinding:
             hint = self._font_hint.render("Press any key to rebind  •  ESC to cancel", True, (255, 220, 80))
             screen.blit(hint, hint.get_rect(centerx=self._panel.centerx, bottom=self._panel.bottom - 60))
 
-
 class VictoryScreen:
-    _PHASE_FADE    = 0   # black fade-in
-    _PHASE_CHAR    = 1   # character slides up, title drops down
-    _PHASE_SUB     = 2   # subtitle + prompt appear
-    _PHASE_IDLE    = 3   # fully shown, waiting for input
-
-    FADE_DUR   = 0.8
-    CHAR_DUR   = 0.9
-    SUB_DELAY  = 0.3     # after char phase ends
+    _PHASE_FADE = 0 # black fade-in
+    _PHASE_CHAR = 1 # character slides up, title drops down
+    _PHASE_SUB = 2 # subtitle + prompt appear
+    _PHASE_IDLE = 3 # fully shown, waiting for input
+    FADE_DUR = 0.8
+    CHAR_DUR = 0.9
+    SUB_DELAY = 0.3 # after char phase ends
     PROMPT_DELAY = 1.2
-
     def __init__(self, screen_width, screen_height):
         self.W = screen_width
         self.H = screen_height
-        self._phase   = self._PHASE_FADE
-        self._timer   = 0.0
-        self._sub_t   = 0.0
+        self._phase = self._PHASE_FADE
+        self._timer = 0.0
+        self._sub_t = 0.0
         self._prompt_t = 0.0
-        self.done     = False
-
-        # ---- fonts ----
-        self._font_title  = pygame.font.Font(None, 110)
-        self._font_sub    = pygame.font.Font(None, 46)
+        self.done = False
+        self._font_title = pygame.font.Font(None, 110)
+        self._font_sub = pygame.font.Font(None, 46)
         self._font_prompt = pygame.font.Font(None, 30)
-
-        # ---- pre-render text ----
-        self._title_surf  = self._font_title.render("YOU ESCAPED!", True, (120, 255, 190))
-        self._sub_lines   = [
+        self._title_surf = self._font_title.render("YOU ESCAPED!", True, (120, 255, 190))
+        self._sub_lines = [
             self._font_sub.render("Santa's factory is behind you.", True, (220, 230, 255)),
             self._font_sub.render("You are finally free.", True, (220, 230, 255)),
         ]
         self._prompt_surf = self._font_prompt.render("Press any key to continue", True, (160, 160, 180))
-
-        # ---- idle sprite frames (scaled up big) ----
         self._frames = []
-        idle_dir = os.path.join("assets", "Sprite", "Idle")
+        idle_dir = os.path.join("assets", "sprites", "idle")
         for fname in sorted(os.listdir(idle_dir)):
             if not fname.endswith(".png"):
                 continue
@@ -524,13 +479,10 @@ class VictoryScreen:
             wb, hb = 5, 15
             img = img.subsurface(pygame.Rect(wb, hb, w - wb * 2, h - hb * 2))
             self._frames.append(img)
-        self._frame_t  = 0.0
-        self._frame_i  = 0
-        self._char_w   = self._frames[0].get_width()
-        self._char_h   = self._frames[0].get_height()
-
-        # ---- particles ----
-        import random
+        self._frame_t = 0.0
+        self._frame_i = 0
+        self._char_w = self._frames[0].get_width()
+        self._char_h = self._frames[0].get_height()
         rng = random.Random(42)
         self._particles = [
             {
@@ -549,22 +501,15 @@ class VictoryScreen:
             for _ in range(80)
         ]
         self._particles_active = False
-
-        # ---- sfx / music ----
         pygame.mixer.music.stop()
         self._sfx = pygame.mixer.Sound(os.path.join("main_menu", "sfx", "win_sfx.mp3"))
         self._sfx_played = False
-
-        # ---- background surface (solid dark) ----
         self._bg = pygame.Surface((screen_width, screen_height))
         self._bg.fill((8, 6, 18))
-
-        # ---- fade overlay ----
         self._fade_surf = pygame.Surface((screen_width, screen_height))
         self._fade_surf.fill((0, 0, 0))
         self._fade_alpha = 255
 
-    # ------------------------------------------------------------------
     def handle_event(self, event):
         if self._phase == self._PHASE_IDLE:
             if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
@@ -572,7 +517,6 @@ class VictoryScreen:
 
     def update(self, dt):
         self._timer += dt
-
         if self._phase == self._PHASE_FADE:
             self._fade_alpha = max(0, 255 - int(255 * (self._timer / self.FADE_DUR)))
             if self._timer >= self.FADE_DUR:
@@ -581,42 +525,33 @@ class VictoryScreen:
                 if not self._sfx_played:
                     self._sfx.play()
                     self._sfx_played = True
-
         elif self._phase == self._PHASE_CHAR:
             if self._timer >= self.CHAR_DUR:
                 self._phase = self._PHASE_SUB
                 self._timer = 0.0
             self._fade_alpha = 0
-
         elif self._phase == self._PHASE_SUB:
-            self._sub_t    = max(0.0, self._timer - self.SUB_DELAY)
+            self._sub_t = max(0.0, self._timer - self.SUB_DELAY)
             self._prompt_t = max(0.0, self._timer - self.PROMPT_DELAY)
             if self._timer >= self.PROMPT_DELAY + 0.5:
                 self._phase = self._PHASE_IDLE
                 self._particles_active = True
-
         elif self._phase == self._PHASE_IDLE:
-            self._sub_t    = 999.0
+            self._sub_t = 999.0
             self._prompt_t = 999.0
-
-        # animate character
         self._frame_t += dt * 8
         self._frame_i = int(self._frame_t) % len(self._frames)
-
-        # update particles
         if self._particles_active:
             for p in self._particles:
                 if p['life'] <= 0:
                     continue
-                p['x']  += p['vx'] * dt
-                p['y']  += p['vy'] * dt
-                p['vy'] += 300 * dt   # gravity
+                p['x'] += p['vx'] * dt
+                p['y'] += p['vy'] * dt
+                p['vy'] += 300 * dt
                 p['life'] -= p['decay'] * dt
 
     def draw(self, screen):
         screen.blit(self._bg, (0, 0))
-
-        # --- particles ---
         for p in self._particles:
             if p['life'] <= 0:
                 continue
@@ -624,8 +559,6 @@ class VictoryScreen:
             s = pygame.Surface((p['size'] * 2, p['size'] * 2), pygame.SRCALPHA)
             pygame.draw.circle(s, (*p['color'], alpha), (p['size'], p['size']), p['size'])
             screen.blit(s, (int(p['x']) - p['size'], int(p['y']) - p['size']))
-
-        # --- character ---
         char_x = self.W // 2 - self._char_w // 2
         char_target_y = self.H - self._char_h - 60
         if self._phase == self._PHASE_CHAR:
@@ -637,8 +570,6 @@ class VictoryScreen:
             char_y = char_target_y
         if self._phase != self._PHASE_FADE:
             screen.blit(self._frames[self._frame_i], (char_x, char_y))
-
-        # --- title drop ---
         if self._phase in (self._PHASE_CHAR, self._PHASE_SUB, self._PHASE_IDLE):
             if self._phase == self._PHASE_CHAR:
                 t = min(1.0, self._timer / self.CHAR_DUR)
@@ -646,14 +577,11 @@ class VictoryScreen:
                 title_y = int(-80 + (self.H // 4 - 40 + 80) * ease)
             else:
                 title_y = self.H // 4 - 40
-            # glow layers
             for i in range(3, 0, -1):
                 glow = self._font_title.render("YOU ESCAPED!", True, (40, 120, 80))
                 glow.set_alpha(40 * i)
                 screen.blit(glow, glow.get_rect(centerx=self.W // 2 + i, centery=title_y + i))
             screen.blit(self._title_surf, self._title_surf.get_rect(centerx=self.W // 2, centery=title_y))
-
-        # --- subtitle lines ---
         sub_alpha = int(min(255, self._sub_t / 0.5 * 255))
         if sub_alpha > 0:
             sub_y = self.H // 2 + 20
@@ -661,16 +589,12 @@ class VictoryScreen:
                 line.set_alpha(sub_alpha)
                 screen.blit(line, line.get_rect(centerx=self.W // 2, centery=sub_y))
                 sub_y += 50
-
-        # --- prompt ---
         prompt_alpha = int(min(255, self._prompt_t / 0.4 * 255))
         if prompt_alpha > 0:
             pulse = int(180 + 75 * abs(__import__('math').sin(pygame.time.get_ticks() / 500)))
             p_surf = self._font_prompt.render("Press any key to continue", True, (pulse, pulse, pulse))
             p_surf.set_alpha(prompt_alpha)
             screen.blit(p_surf, p_surf.get_rect(centerx=self.W // 2, bottom=self.H - 30))
-
-        # --- fade overlay ---
         if self._fade_alpha > 0:
             self._fade_surf.set_alpha(self._fade_alpha)
             screen.blit(self._fade_surf, (0, 0))

@@ -13,7 +13,7 @@ class PlayerState(Enum):
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("assets\\Sprite\\Idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
+        self.image = pygame.image.load("assets\\sprites\\idle\\0_Forest_Ranger_Idle_000.png").convert_alpha()
         self.image = pygame.transform.scale_by(self.image, 0.1)
         w_bound = 5
         h_bound = 15
@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         # animation frames
         self.animations = {}
         self.state = PlayerState.IDLE
-        base_folder = Path("assets") / "Sprite"
+        base_folder = Path("assets") / "sprites"
         for image_pth in base_folder.rglob("*.png"):
             folder_name = image_pth.parent.name
             folder_name = folder_name.lower()
@@ -58,12 +58,12 @@ class Player(pygame.sprite.Sprite):
         self.friction = -12.0
         self.gravity = 2400.0
         # jump
-        self.jump_sound = pygame.mixer.Sound("assets\\Sound\\jump.mp3")
+        self.jump_sound = pygame.mixer.Sound("assets\\audio\\jump.mp3")
         self.jump_strength = 820.0
         self.on_ground = False
         self.can_double_jump = True
         # dash
-        self.dash_sound = pygame.mixer.Sound("assets\\Sound\\dash.mp3")
+        self.dash_sound = pygame.mixer.Sound("assets\\audio\\dash.mp3")
         self.dash_speed = 700.0
         self.dash_time = 0.3
         self.dash_cooldown = 0.7
@@ -77,14 +77,14 @@ class Player(pygame.sprite.Sprite):
         self.stamina_rect.bottomleft = self.hitbox.topleft
         # hurt
         self.hp = 100
-        self.hurt_sound = pygame.mixer.Sound("assets\\Sound\\hurt.mp3")
+        self.hurt_sound = pygame.mixer.Sound("assets\\audio\\hurt.mp3")
         self.hurt_time = 0.5
         self.hurt_cooldown = 0.8
         self._hurt_timer = 0.0
         self._hurt_cd_timer = 0.0
         self.hurting = False
         # run
-        self.run_sound = pygame.mixer.Sound("assets\\Sound\\run.mp3")
+        self.run_sound = pygame.mixer.Sound("assets\\audio\\run.mp3")
         self.run_sound_time = self.run_sound.get_length()
         self._run_sound_timer = 0.0
 
