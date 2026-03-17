@@ -166,24 +166,24 @@ class MainMenu:
         self.bg = MenuBackground(screen_width, screen_height)
         asset_path = 'main_menu'
         try:
-            self.title        = pygame.image.load(os.path.join(asset_path, 'menu_title.png')).convert_alpha()
-            self.start_btn    = pygame.image.load(os.path.join(asset_path, 'button_start.png')).convert_alpha()
+            self.title = pygame.image.load(os.path.join(asset_path, 'menu_title.png')).convert_alpha()
+            self.start_btn = pygame.image.load(os.path.join(asset_path, 'button_start.png')).convert_alpha()
             self.settings_btn = pygame.image.load(os.path.join(asset_path, 'button_settings.png')).convert_alpha()
-            self.quit_btn     = pygame.image.load(os.path.join(asset_path, 'button_quit.png')).convert_alpha()
+            self.quit_btn = pygame.image.load(os.path.join(asset_path, 'button_quit.png')).convert_alpha()
             btn_w = int(screen_width * 0.25)
             btn_h = int(screen_height * 0.125)
-            self.start_btn    = pygame.transform.scale(self.start_btn,    (btn_w, btn_h))
+            self.start_btn = pygame.transform.scale(self.start_btn,    (btn_w, btn_h))
             self.settings_btn = pygame.transform.scale(self.settings_btn, (btn_w, btn_h))
-            self.quit_btn     = pygame.transform.scale(self.quit_btn,     (btn_w, btn_h))
+            self.quit_btn = pygame.transform.scale(self.quit_btn,     (btn_w, btn_h))
         except Exception:
             self.title = pygame.Surface((400, 100), pygame.SRCALPHA)
             self.start_btn = pygame.Surface((200, 50)); self.start_btn.fill((100, 100, 100))
             self.settings_btn = pygame.Surface((200, 50)); self.settings_btn.fill((80, 80, 120))
             self.quit_btn = pygame.Surface((200, 50)); self.quit_btn.fill((100, 100, 100))
-        self.title_rect    = self.title.get_rect(center=(screen_width // 2, screen_height // 3))
-        self.start_rect    = self.start_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 30))
+        self.title_rect = self.title.get_rect(center=(screen_width // 2, screen_height // 3))
+        self.start_rect = self.start_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 30))
         self.settings_rect = self.settings_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 140))
-        self.quit_rect     = self.quit_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 250))
+        self.quit_rect = self.quit_btn.get_rect(center=(screen_width // 2, screen_height // 2 + 250))
         self.font = pygame.font.Font(None, 50)
         self.lvl1_rect = pygame.Rect(0, 0, 250, 60)
         self.lvl2_rect = pygame.Rect(0, 0, 250, 60)
@@ -192,7 +192,7 @@ class MainMenu:
         self.lvl2_rect.center = (screen_width // 2, screen_height // 2 + 60)
         self.back_rect.center = (screen_width // 2, screen_height // 2 + 180)
         self.start_hovered = self.settings_hovered = self.quit_hovered = False
-        self.lvl1_hovered  = self.lvl2_hovered = self.back_hovered = False
+        self.lvl1_hovered = self.lvl2_hovered = self.back_hovered = False
         self._prev_hovered = set()
         self.pop_sfx = pygame.mixer.Sound(os.path.join(asset_path, 'sfx', 'popsfx.mp3'))
         self._sfx_channel = pygame.mixer.find_channel()
@@ -316,12 +316,12 @@ class PauseMenu:
             screen.blit(lbl, lbl.get_rect(center=rect.center))
 
 class SettingsScreen:
-    PANEL_W  = 700
-    PANEL_H  = 520
+    PANEL_W = 700
+    PANEL_H = 520
     SLIDER_W = 200
     SLIDER_H = 8
-    THUMB_R  = 10
-    ROW_H    = 54
+    THUMB_R = 10
+    ROW_H = 54
     _ACTION_LABELS = [
         ('left',  'Move Left'),
         ('right', 'Move Right'),

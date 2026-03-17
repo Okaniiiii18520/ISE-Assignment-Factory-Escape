@@ -1,5 +1,5 @@
-# Speeding Grinch
-A 2D side-scrolling platformer built in Python with Pygame, demonstrating movement inspired by SpeedRunners. 
+# Factory Escape
+A two-dimensional side-scrolling platformer game built in Python with Pygame, demonstrating movement inspired by SpeedRunners. 
 
 # Narrative
 You play as a toy assembly elf attempting to escape Santa's factory before you become the next missing worker. Avoid management, jump over obstacles, and reach the goal at the end of each level.
